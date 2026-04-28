@@ -12,7 +12,8 @@
 
 ## 현재 상태
 - 설계서의 Phase 1~4 중심으로 동작 골격을 우선 구현
-- MediaProjection 실캡처 승인 플로우와 실제 Vision API 연동은 다음 단계에서 연결 가능
+- MediaProjection 1회 실캡처 승인 플로우 연결
+- Gemini Vision API 연동(키 미설정/실패 시 Mock fallback)
 
 ## 주요 패키지
 - `ai`: AI 분석 인터페이스/구현
@@ -23,7 +24,13 @@
 - `data/datastore`: 사용자 설정 저장
 
 ## 다음 작업 권장
-1. `MockVisionAnalyzer`를 실제 모델 API 클라이언트로 교체
-2. MediaProjection 승인/캡처 플로우 연결
-3. Batch Review 화면 및 결과 저장 화면 추가
-4. 런타임 권한 UX 세분화
+1. Batch Review 화면 및 결과 저장 화면 추가
+2. TODO 액션/영수증 CSV 내보내기/캘린더 중복검사 정밀화
+3. 런타임 권한 UX 세분화 및 거부 시나리오 가이드 강화
+4. 테스트 코드 및 성능/배터리 점검
+
+## API 키 설정
+`local.properties`:
+```properties
+GEMINI_API_KEY=your_key_here
+```

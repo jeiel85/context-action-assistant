@@ -1,6 +1,7 @@
 package com.jeiel.contextactionassistant.domain.usecase
 
 import android.content.ContentResolver
+import android.graphics.Bitmap
 import android.net.Uri
 import com.jeiel.contextactionassistant.ai.VisionAnalyzer
 import com.jeiel.contextactionassistant.domain.model.AiAnalysisResult
@@ -27,6 +28,20 @@ class AnalyzeImageUseCase @Inject constructor(
         appPackage: String? = null
     ): Result<AiAnalysisResult> {
         val processed = preprocessor.process(contentResolver, uri).getOrElse { return Result.failure(it) }
+        val request = AnalysisRequest(
+            imageBytes = processed.bytes,
+            source = source,
+            appPackage = appPackage
+        )
+        return analyzer.analyze(request)
+    }
+
+    suspend operator fun invoke(
+        bitmap: Bitmap,
+        source: CaptureSource,
+        appPackage: String? = null
+    ): Result<AiAnalysisResult> {
+        val processed = preprocessor.process(bitmap).getOrElse { return Result.failure(it) }
         val request = AnalysisRequest(
             imageBytes = processed.bytes,
             source = source,

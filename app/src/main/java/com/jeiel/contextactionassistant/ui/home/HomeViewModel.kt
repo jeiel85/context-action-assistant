@@ -75,6 +75,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun setAnalyzing(analyzing: Boolean) {
+        _uiState.update { it.copy(isAnalyzing = analyzing) }
+    }
+
+    fun setLatestMessage(message: String) {
+        _uiState.update { it.copy(latestMessage = message) }
+    }
+
     fun refreshOverlayPermission(context: Context) {
         val granted = Settings.canDrawOverlays(context)
         _uiState.update { it.copy(overlayPermissionGranted = granted) }

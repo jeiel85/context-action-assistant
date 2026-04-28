@@ -1,5 +1,6 @@
 package com.jeiel.contextactionassistant.core.di
 
+import com.jeiel.contextactionassistant.ai.GeminiVisionAnalyzer
 import com.jeiel.contextactionassistant.ai.MockVisionAnalyzer
 import com.jeiel.contextactionassistant.ai.VisionAnalyzer
 import com.jeiel.contextactionassistant.data.datastore.SettingsRepository
@@ -11,6 +12,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -24,7 +26,19 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideVisionAnalyzer(): VisionAnalyzer = MockVisionAnalyzer()
+    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder().build()
+
+    @Provides
+    @Singleton
+    fun provideVisionAnalyzer(
+        geminiVisionAnalyzer: GeminiVisionAnalyzer
+    ): VisionAnalyzer = object : VisionAnalyzer {
+        private val fallback = MockVisionAnalyzer()
+        override suspend fun analyze(request: com.jeiel.contextactionassistant.domain.model.AnalysisRequest) =
+            geminiVisionAnalyzer.analyze(request).recoverCatching {
+                fallback.analyze(request).getOrThrow()
+            }
+    }
 }
 
 @Module

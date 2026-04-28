@@ -36,6 +36,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.jeiel.contextactionassistant.R
+import com.jeiel.contextactionassistant.MainActivity
 import com.jeiel.contextactionassistant.action.ActionEngine
 import com.jeiel.contextactionassistant.capture.ScreenshotDetector
 import com.jeiel.contextactionassistant.domain.model.AiAnalysisResult
@@ -116,7 +117,13 @@ class OverlayService : LifecycleService() {
             ViewTreeLifecycleOwner.set(this, this@OverlayService)
             setContent {
                 BubbleUi(
-                    onClick = { showFakeManualCard() }
+                    onClick = {
+                        val intent = Intent(this@OverlayService, MainActivity::class.java).apply {
+                            action = MainActivity.ACTION_MANUAL_CAPTURE
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        }
+                        startActivity(intent)
+                    }
                 )
             }
         }
@@ -135,16 +142,6 @@ class OverlayService : LifecycleService() {
 
         windowManager.addView(composeView, params)
         bubbleView = composeView
-    }
-
-    private fun showFakeManualCard() {
-        val fake = AiAnalysisResult(
-            type = com.jeiel.contextactionassistant.domain.model.ActionType.NOTE,
-            confidence = 0.66,
-            summary = "수동 분석: MediaProjection 승인 흐름 연결 전 MVP 카드 샘플",
-            actions = emptyList()
-        )
-        showActionCard(fake)
     }
 
     private fun showActionCard(result: AiAnalysisResult) {

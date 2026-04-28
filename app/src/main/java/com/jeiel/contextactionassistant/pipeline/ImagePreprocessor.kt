@@ -40,6 +40,19 @@ class ImagePreprocessor @Inject constructor() {
         }
     }
 
+    suspend fun process(bitmap: Bitmap): Result<ProcessedImage> = withContext(Dispatchers.IO) {
+        runCatching {
+            val resized = resizeToMaxSide(bitmap, 1280)
+            val output = ByteArrayOutputStream()
+            resized.compress(Bitmap.CompressFormat.JPEG, 85, output)
+            if (resized != bitmap) {
+                resized.recycle()
+            }
+            val bytes = output.toByteArray()
+            ProcessedImage(bytes = bytes, sha256 = bytes.sha256())
+        }
+    }
+
     private fun resizeToMaxSide(bitmap: Bitmap, maxSide: Int): Bitmap {
         val maxCurrent = max(bitmap.width, bitmap.height)
         if (maxCurrent <= maxSide) return bitmap
