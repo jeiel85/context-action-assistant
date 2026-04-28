@@ -22,6 +22,7 @@
 - Batch Review 항목 재실행(저장된 결과 액션 재트리거)
 - Action Engine 고도화(TODO 저장, RECEIPT CSV 클립보드, SCHEDULE 중복 키 방지)
 - MockVisionAnalyzer 단위 테스트 추가
+- Action payload/CSV 포맷 단위 테스트 추가
 
 ## Architecture
 ```text

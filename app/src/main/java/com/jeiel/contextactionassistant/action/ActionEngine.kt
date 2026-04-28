@@ -6,8 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.provider.CalendarContract
 import com.jeiel.contextactionassistant.data.action.ActionDataRepository
-import com.jeiel.contextactionassistant.data.action.ReceiptItem
-import com.jeiel.contextactionassistant.data.action.TodoItem
 import com.jeiel.contextactionassistant.domain.model.ActionType
 import com.jeiel.contextactionassistant.domain.model.AiAnalysisResult
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -46,9 +44,7 @@ class ActionEngine @Inject constructor(
 
     private fun openCalendarInsert(result: AiAnalysisResult): Boolean {
         val title = result.data["title"] ?: "Context Action 일정"
-        val date = result.data["date"].orEmpty()
-        val startTime = result.data["startTime"].orEmpty()
-        val scheduleKey = "$title|$date|$startTime"
+        val scheduleKey = ActionPayloadBuilder.scheduleKey(result)
         val duplicated = runBlocking { actionDataRepository.isDuplicateScheduleKey(scheduleKey) }
         if (duplicated) return false
 
@@ -66,46 +62,16 @@ class ActionEngine @Inject constructor(
     }
 
     private fun saveTodo(result: AiAnalysisResult): Boolean {
-        val item = TodoItem(
-            id = System.currentTimeMillis(),
-            title = result.data["title"] ?: result.summary.take(40),
-            memo = result.data["memo"] ?: result.summary,
-            dueDate = result.data["dueDate"].orEmpty(),
-            priority = result.data["priority"] ?: "MEDIUM",
-            createdAt = System.currentTimeMillis()
-        )
+        val now = System.currentTimeMillis()
+        val item = ActionPayloadBuilder.toTodo(result, now)
         runBlocking { actionDataRepository.saveTodo(item) }
         return copyToClipboard("${item.title}\n${item.memo}")
     }
 
     private fun saveReceiptAndCopyCsv(result: AiAnalysisResult): Boolean {
-        val receipt = ReceiptItem(
-            id = System.currentTimeMillis(),
-            merchant = result.data["merchant"] ?: "UNKNOWN",
-            paidAt = result.data["paidAt"].orEmpty(),
-            amount = result.data["amount"].orEmpty(),
-            currency = result.data["currency"] ?: "KRW",
-            paymentMethod = result.data["paymentMethod"].orEmpty(),
-            createdAt = System.currentTimeMillis()
-        )
+        val receipt = ActionPayloadBuilder.toReceipt(result, System.currentTimeMillis())
         runBlocking { actionDataRepository.saveReceipt(receipt) }
-        val csv = buildString {
-            appendLine("merchant,paidAt,amount,currency,paymentMethod")
-            appendLine(
-                listOf(
-                    receipt.merchant,
-                    receipt.paidAt,
-                    receipt.amount,
-                    receipt.currency,
-                    receipt.paymentMethod
-                ).joinToString(",") { escapeCsv(it) }
-            )
-        }
+        val csv = ActionPayloadBuilder.receiptCsv(receipt)
         return copyToClipboard(csv)
-    }
-
-    private fun escapeCsv(value: String): String {
-        val escaped = value.replace("\"", "\"\"")
-        return "\"$escaped\""
     }
 }
