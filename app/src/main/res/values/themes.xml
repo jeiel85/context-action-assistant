@@ -1,7 +1,9 @@
 <resources>
-    <style name="Theme.ContextActionAssistant" parent="Theme.Material3.DayNight">
-        <!-- No action bar -->
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <!-- Platform theme: Compose Material3 handles all styling.
+         Using DeviceDefault.NoActionBar avoids extra Material library dependency. -->
+    <style name="Theme.ContextActionAssistant" parent="android:Theme.DeviceDefault.NoActionBar">
+        <!-- No title, fullscreen for overlay compatibility -->
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
     </style>
 </resources>
