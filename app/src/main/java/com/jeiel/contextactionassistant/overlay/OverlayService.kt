@@ -33,7 +33,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.jeiel.contextactionassistant.R
 import com.jeiel.contextactionassistant.MainActivity
@@ -130,7 +130,7 @@ class OverlayService : LifecycleService() {
 
     private fun addBubble() {
         val composeView = ComposeView(this).apply {
-            ViewTreeLifecycleOwner.set(this, this@OverlayService)
+            setViewTreeLifecycleOwner(this@OverlayService)
             setContent {
                 BubbleUi(
                     onClick = {
@@ -163,7 +163,7 @@ class OverlayService : LifecycleService() {
     private fun showActionCard(result: AiAnalysisResult) {
         removeView(cardView)
         val composeView = ComposeView(this).apply {
-            ViewTreeLifecycleOwner.set(this, this@OverlayService)
+            setViewTreeLifecycleOwner(this@OverlayService)
             setContent {
                 ActionCardUi(
                     result = result,
