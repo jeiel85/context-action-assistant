@@ -1,3 +1,7 @@
 <resources>
-    <style name="Theme.ContextActionAssistant" parent="Theme.Material3.DayNight.NoActionBar" />
+    <style name="Theme.ContextActionAssistant" parent="Theme.Material3.DayNight">
+        <!-- No action bar -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>
