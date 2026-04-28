@@ -24,12 +24,14 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Build Debug APK
-        run: gradle :app:assembleDebug
+        run: gradle --no-daemon :app:assembleDebug
 
       - name: Run Unit Tests
-        run: gradle :app:testDebugUnitTest
+        run: gradle --no-daemon :app:testDebugUnitTest
