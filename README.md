@@ -20,7 +20,9 @@
 - `VisionAnalyzer` 추상화 + `GeminiVisionAnalyzer` + Mock fallback
 - Batch Review 기본 저장/조회(최신 분석 결과 목록)
 - Batch Review 항목 재실행(저장된 결과 액션 재트리거)
+- Batch Review 검색/타입 필터/상세 펼침
 - Action Engine 고도화(TODO 저장, RECEIPT CSV 클립보드, SCHEDULE 중복 키 방지)
+- Action Engine 캘린더 실제 이벤트 중복 조회(제목+시간) 추가
 - MockVisionAnalyzer 단위 테스트 추가
 - Action payload/CSV 포맷 단위 테스트 추가
 

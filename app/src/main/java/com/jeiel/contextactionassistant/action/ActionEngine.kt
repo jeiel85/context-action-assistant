@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.provider.CalendarContract
+import android.provider.CalendarContract.Events
 import com.jeiel.contextactionassistant.data.action.ActionDataRepository
 import com.jeiel.contextactionassistant.domain.model.ActionType
 import com.jeiel.contextactionassistant.domain.model.AiAnalysisResult
@@ -45,10 +46,12 @@ class ActionEngine @Inject constructor(
     private fun openCalendarInsert(result: AiAnalysisResult): Boolean {
         val title = result.data["title"] ?: "Context Action 일정"
         val scheduleKey = ActionPayloadBuilder.scheduleKey(result)
+        val beginMillis = ActionPayloadBuilder.scheduleStartMillisOrNull(result) ?: (System.currentTimeMillis() + 3_600_000)
+
         val duplicated = runBlocking { actionDataRepository.isDuplicateScheduleKey(scheduleKey) }
         if (duplicated) return false
+        if (existsCalendarDuplicate(title, beginMillis)) return false
 
-        val beginMillis = System.currentTimeMillis() + 3_600_000
         val intent = Intent(Intent.ACTION_INSERT).apply {
             data = CalendarContract.Events.CONTENT_URI
             putExtra(CalendarContract.Events.TITLE, title)
@@ -59,6 +62,20 @@ class ActionEngine @Inject constructor(
         context.startActivity(intent)
         runBlocking { actionDataRepository.markScheduleKey(scheduleKey) }
         return true
+    }
+
+    private fun existsCalendarDuplicate(title: String, beginMillis: Long): Boolean {
+        val resolver = context.contentResolver
+        val projection = arrayOf(Events._ID)
+        val start = beginMillis - 60_000
+        val end = beginMillis + 60_000
+        val selection = "${Events.TITLE} = ? AND ${Events.DTSTART} BETWEEN ? AND ?"
+        val args = arrayOf(title, start.toString(), end.toString())
+        return runCatching {
+            resolver.query(Events.CONTENT_URI, projection, selection, args, null)?.use { cursor ->
+                cursor.count > 0
+            } ?: false
+        }.getOrDefault(false)
     }
 
     private fun saveTodo(result: AiAnalysisResult): Boolean {

@@ -9,5 +9,8 @@ data class HomeUiState(
     val latestMessage: String = "대기 중",
     val isAnalyzing: Boolean = false,
     val reviewItems: List<ReviewItem> = emptyList(),
-    val missingPermissions: List<String> = emptyList()
+    val missingPermissions: List<String> = emptyList(),
+    val reviewQuery: String = "",
+    val reviewFilter: String = "ALL",
+    val expandedReviewId: Long? = null
 )

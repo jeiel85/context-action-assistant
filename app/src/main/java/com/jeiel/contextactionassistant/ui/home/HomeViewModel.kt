@@ -2,6 +2,7 @@ package com.jeiel.contextactionassistant.ui.home
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -107,6 +108,20 @@ class HomeViewModel @Inject constructor(
 
     fun refreshPermissions() {
         _uiState.update { it.copy(missingPermissions = permissionManager.missingRuntimePermissions()) }
+    }
+
+    fun setReviewQuery(query: String) {
+        _uiState.update { it.copy(reviewQuery = query) }
+    }
+
+    fun setReviewFilter(filter: String) {
+        _uiState.update { it.copy(reviewFilter = filter) }
+    }
+
+    fun toggleExpandedReview(itemId: Long) {
+        _uiState.update {
+            it.copy(expandedReviewId = if (it.expandedReviewId == itemId) null else itemId)
+        }
     }
 
     fun addReviewItem(item: ReviewItem) {

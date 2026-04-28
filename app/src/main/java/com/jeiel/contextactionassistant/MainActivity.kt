@@ -111,7 +111,10 @@ class MainActivity : ComponentActivity() {
                         if (item != null) {
                             viewModel.executeReviewItem(item)
                         }
-                    }
+                    },
+                    onReviewQueryChange = viewModel::setReviewQuery,
+                    onReviewFilterChange = viewModel::setReviewFilter,
+                    onToggleExpandedReview = viewModel::toggleExpandedReview
                 )
             }
         }

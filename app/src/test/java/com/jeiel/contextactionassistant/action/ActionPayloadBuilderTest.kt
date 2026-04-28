@@ -3,6 +3,7 @@ package com.jeiel.contextactionassistant.action
 import com.jeiel.contextactionassistant.domain.model.ActionType
 import com.jeiel.contextactionassistant.domain.model.AiAnalysisResult
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -35,5 +36,19 @@ class ActionPayloadBuilderTest {
         val csv = ActionPayloadBuilder.receiptCsv(item)
 
         assertTrue(csv.contains("\"A\"\"B\""))
+    }
+
+    @Test
+    fun `schedule start millis is parsed when date and time exist`() {
+        val result = AiAnalysisResult(
+            type = ActionType.SCHEDULE,
+            confidence = 0.8,
+            summary = "summary",
+            data = mapOf("date" to "2026-05-01", "startTime" to "09:00")
+        )
+
+        val millis = ActionPayloadBuilder.scheduleStartMillisOrNull(result)
+
+        assertNotNull(millis)
     }
 }

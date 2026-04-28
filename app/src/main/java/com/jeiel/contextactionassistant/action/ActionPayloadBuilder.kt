@@ -3,6 +3,9 @@ package com.jeiel.contextactionassistant.action
 import com.jeiel.contextactionassistant.data.action.ReceiptItem
 import com.jeiel.contextactionassistant.data.action.TodoItem
 import com.jeiel.contextactionassistant.domain.model.AiAnalysisResult
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 object ActionPayloadBuilder {
     fun scheduleKey(result: AiAnalysisResult): String {
@@ -48,5 +51,14 @@ object ActionPayloadBuilder {
     fun escapeCsv(value: String): String {
         val escaped = value.replace("\"", "\"\"")
         return "\"$escaped\""
+    }
+
+    fun scheduleStartMillisOrNull(result: AiAnalysisResult): Long? {
+        val date = result.data["date"] ?: return null
+        val startTime = result.data["startTime"] ?: return null
+        val parsed = runCatching {
+            LocalDateTime.parse("${date}T$startTime", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+        }.getOrNull() ?: return null
+        return parsed.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 }
