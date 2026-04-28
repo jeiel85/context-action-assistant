@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +22,9 @@ fun HomeScreen(
     onStopOverlay: () -> Unit,
     onRequestOverlayPermission: () -> Unit,
     onToggleAiTransfer: (Boolean) -> Unit,
-    onManualCapture: () -> Unit
+    onManualCapture: () -> Unit,
+    onRefreshReviews: () -> Unit,
+    onClearReviews: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -39,6 +43,7 @@ fun HomeScreen(
                 Text(text = "AI 전송 허용")
                 Switch(checked = state.aiTransferEnabled, onCheckedChange = onToggleAiTransfer)
                 Text(text = "최신 상태: ${state.latestMessage}")
+                Text(text = "Batch Review: ${state.reviewItems.size}건")
             }
         }
 
@@ -56,6 +61,25 @@ fun HomeScreen(
 
         Button(onClick = onStopOverlay) {
             Text("오버레이 중지")
+        }
+
+        Button(onClick = onRefreshReviews) {
+            Text("검토 목록 새로고침")
+        }
+
+        Button(onClick = onClearReviews) {
+            Text("검토 목록 비우기")
+        }
+
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(state.reviewItems.take(8), key = { it.id }) { item ->
+                Card {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text("${item.type} (${item.confidence})")
+                        Text(item.summary)
+                    }
+                }
+            }
         }
     }
 }

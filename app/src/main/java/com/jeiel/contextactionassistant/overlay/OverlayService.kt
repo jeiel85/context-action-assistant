@@ -39,13 +39,15 @@ import com.jeiel.contextactionassistant.R
 import com.jeiel.contextactionassistant.MainActivity
 import com.jeiel.contextactionassistant.action.ActionEngine
 import com.jeiel.contextactionassistant.capture.ScreenshotDetector
+import com.jeiel.contextactionassistant.data.review.ReviewItem
+import com.jeiel.contextactionassistant.data.review.ReviewRepository
 import com.jeiel.contextactionassistant.domain.model.AiAnalysisResult
 import com.jeiel.contextactionassistant.domain.model.CaptureSource
 import com.jeiel.contextactionassistant.domain.usecase.AnalyzeImageUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -54,6 +56,7 @@ class OverlayService : LifecycleService() {
     @Inject lateinit var screenshotDetector: ScreenshotDetector
     @Inject lateinit var analyzeImageUseCase: AnalyzeImageUseCase
     @Inject lateinit var actionEngine: ActionEngine
+    @Inject lateinit var reviewRepository: ReviewRepository
 
     private lateinit var windowManager: WindowManager
     private var bubbleView: View? = null
@@ -89,13 +92,25 @@ class OverlayService : LifecycleService() {
         }
         if (detectorJob == null) {
             detectorJob = lifecycleScope.launch {
-                screenshotDetector.observe(contentResolver).collectLatest { uri ->
+                screenshotDetector.observe(contentResolver).collect { uri ->
                     val result = analyzeImageUseCase(
                         contentResolver = contentResolver,
                         uri = uri,
                         source = CaptureSource.SCREENSHOT_DETECTED
-                    ).getOrNull() ?: return@collectLatest
-                    showActionCard(result)
+                    ).getOrNull() ?: return@collect
+                    reviewRepository.add(
+                        ReviewItem(
+                            id = System.currentTimeMillis(),
+                            type = result.type,
+                            confidence = result.confidence,
+                            summary = result.summary,
+                            createdAt = System.currentTimeMillis(),
+                            source = CaptureSource.SCREENSHOT_DETECTED.name
+                        )
+                    )
+                    if (result.confidence >= 0.7) {
+                        showActionCard(result)
+                    }
                 }
             }
         }

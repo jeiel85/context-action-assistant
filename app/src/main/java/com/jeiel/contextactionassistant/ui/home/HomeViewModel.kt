@@ -7,6 +7,7 @@ import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeiel.contextactionassistant.data.datastore.SettingsRepository
+import com.jeiel.contextactionassistant.data.review.ReviewRepository
 import com.jeiel.contextactionassistant.overlay.OverlayService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val reviewRepository: ReviewRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -35,6 +37,7 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+        refreshReviews()
     }
 
     fun startOverlayService(context: Context) {
@@ -86,5 +89,18 @@ class HomeViewModel @Inject constructor(
     fun refreshOverlayPermission(context: Context) {
         val granted = Settings.canDrawOverlays(context)
         _uiState.update { it.copy(overlayPermissionGranted = granted) }
+    }
+
+    fun refreshReviews() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(reviewItems = reviewRepository.getAll()) }
+        }
+    }
+
+    fun clearReviews() {
+        viewModelScope.launch {
+            reviewRepository.clear()
+            _uiState.update { it.copy(reviewItems = emptyList()) }
+        }
     }
 }

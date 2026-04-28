@@ -89,7 +89,9 @@ class MainActivity : ComponentActivity() {
                     onManualCapture = {
                         viewModel.setAnalyzing(true)
                         captureLauncher.launch(manualCaptureManager.createCaptureIntent())
-                    }
+                    },
+                    onRefreshReviews = viewModel::refreshReviews,
+                    onClearReviews = viewModel::clearReviews
                 )
             }
         }
@@ -104,6 +106,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.refreshOverlayPermission(this)
+        viewModel.refreshReviews()
     }
 
     private fun handleSharedImage(intent: Intent?) {
