@@ -20,3 +20,6 @@
 
 # Secrets
 secrets.properties
+
+# Local temp gradle distribution
+gradle-8.10.2/

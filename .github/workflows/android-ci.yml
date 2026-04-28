@@ -35,15 +35,27 @@ jobs:
           yes | sdkmanager --licenses
           sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
+      - name: Configure local.properties
+        run: |
+          if [ -n "$ANDROID_HOME" ]; then
+            echo "sdk.dir=$ANDROID_HOME" > local.properties
+          elif [ -n "$ANDROID_SDK_ROOT" ]; then
+            echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          else
+            echo "Android SDK path is missing"
+            exit 1
+          fi
+
       - name: Build Debug APK
         run: |
           set -o pipefail
-          gradle --no-daemon :app:assembleDebug --stacktrace --info 2>&1 | tee build.log
+          chmod +x ./gradlew
+          ./gradlew --no-daemon :app:assembleDebug --stacktrace --info 2>&1 | tee build.log
 
       - name: Run Unit Tests
         run: |
           set -o pipefail
-          gradle --no-daemon :app:testDebugUnitTest --stacktrace --info 2>&1 | tee test.log
+          ./gradlew --no-daemon :app:testDebugUnitTest --stacktrace --info 2>&1 | tee test.log
 
       - name: Upload CI logs
         if: always()
