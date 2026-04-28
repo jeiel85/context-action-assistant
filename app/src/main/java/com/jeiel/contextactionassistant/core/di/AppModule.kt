@@ -5,6 +5,8 @@ import com.jeiel.contextactionassistant.ai.MockVisionAnalyzer
 import com.jeiel.contextactionassistant.ai.VisionAnalyzer
 import com.jeiel.contextactionassistant.data.datastore.SettingsRepository
 import com.jeiel.contextactionassistant.data.datastore.SettingsRepositoryImpl
+import com.jeiel.contextactionassistant.data.action.ActionDataRepository
+import com.jeiel.contextactionassistant.data.action.ActionDataRepositoryImpl
 import com.jeiel.contextactionassistant.data.review.ReviewRepository
 import com.jeiel.contextactionassistant.data.review.ReviewRepositoryImpl
 import dagger.Binds
@@ -46,6 +48,9 @@ object AppModule {
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+    @Binds
+    abstract fun bindActionDataRepository(impl: ActionDataRepositoryImpl): ActionDataRepository
+
     @Binds
     abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
 

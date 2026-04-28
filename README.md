@@ -18,6 +18,8 @@
 - `ImagePreprocessor` (리사이즈/압축)
 - `VisionAnalyzer` 추상화 + `GeminiVisionAnalyzer` + Mock fallback
 - Batch Review 기본 저장/조회(최신 분석 결과 목록)
+- Action Engine 고도화(TODO 저장, RECEIPT CSV 클립보드, SCHEDULE 중복 키 방지)
+- MockVisionAnalyzer 단위 테스트 추가
 
 ## Architecture
 ```text
