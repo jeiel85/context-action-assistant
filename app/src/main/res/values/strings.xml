@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Context Action Assistant</string>
+    <string name="home_title">Context Action Assistant</string>
+    <string name="home_subtitle">스크린샷 또는 공유 이미지에서 바로 액션을 생성합니다.</string>
+    <string name="start_overlay">오버레이 시작</string>
+    <string name="stop_overlay">오버레이 중지</string>
+    <string name="overlay_permission_required">오버레이 권한이 필요합니다.</string>
+    <string name="capture_hint">MediaProjection은 사용자가 직접 시작할 때만 요청됩니다.</string>
+</resources>
