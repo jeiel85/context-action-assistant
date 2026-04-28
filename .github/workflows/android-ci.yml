@@ -36,7 +36,20 @@ jobs:
           sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Build Debug APK
-        run: gradle --no-daemon :app:assembleDebug
+        run: |
+          set -o pipefail
+          gradle --no-daemon :app:assembleDebug --stacktrace --info 2>&1 | tee build.log
 
       - name: Run Unit Tests
-        run: gradle --no-daemon :app:testDebugUnitTest
+        run: |
+          set -o pipefail
+          gradle --no-daemon :app:testDebugUnitTest --stacktrace --info 2>&1 | tee test.log
+
+      - name: Upload CI logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs-${{ github.run_number }}
+          path: |
+            build.log
+            test.log
