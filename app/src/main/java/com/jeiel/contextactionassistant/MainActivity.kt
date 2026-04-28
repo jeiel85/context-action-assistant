@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.jeiel.contextactionassistant.action.ActionEngine
 import com.jeiel.contextactionassistant.capture.ManualCaptureManager
+import com.jeiel.contextactionassistant.core.permission.PermissionManager
 import com.jeiel.contextactionassistant.domain.model.CaptureSource
 import com.jeiel.contextactionassistant.domain.usecase.AnalyzeImageUseCase
 import com.jeiel.contextactionassistant.ui.home.HomeScreen
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var manualCaptureManager: ManualCaptureManager
     @Inject lateinit var analyzeImageUseCase: AnalyzeImageUseCase
     @Inject lateinit var actionEngine: ActionEngine
+    @Inject lateinit var permissionManager: PermissionManager
 
     private val viewModel: HomeViewModel by viewModels()
     private val captureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -70,6 +72,11 @@ class MainActivity : ComponentActivity() {
             viewModel.setAnalyzing(false)
         }
     }
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        viewModel.refreshPermissions()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +98,13 @@ class MainActivity : ComponentActivity() {
                         captureLauncher.launch(manualCaptureManager.createCaptureIntent())
                     },
                     onRefreshReviews = viewModel::refreshReviews,
-                    onClearReviews = viewModel::clearReviews
+                    onClearReviews = viewModel::clearReviews,
+                    onRequestRuntimePermissions = {
+                        val missing = permissionManager.missingRuntimePermissions()
+                        if (missing.isNotEmpty()) {
+                            permissionLauncher.launch(missing.toTypedArray())
+                        }
+                    }
                 )
             }
         }
@@ -107,6 +120,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         viewModel.refreshOverlayPermission(this)
         viewModel.refreshReviews()
+        viewModel.refreshPermissions()
     }
 
     private fun handleSharedImage(intent: Intent?) {

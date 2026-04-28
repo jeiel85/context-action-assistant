@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jeiel.contextactionassistant.core.permission.PermissionManager
 import com.jeiel.contextactionassistant.data.datastore.SettingsRepository
 import com.jeiel.contextactionassistant.data.review.ReviewRepository
 import com.jeiel.contextactionassistant.overlay.OverlayService
@@ -20,7 +21,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val reviewRepository: ReviewRepository
+    private val reviewRepository: ReviewRepository,
+    private val permissionManager: PermissionManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -38,6 +40,7 @@ class HomeViewModel @Inject constructor(
             }
         }
         refreshReviews()
+        refreshPermissions()
     }
 
     fun startOverlayService(context: Context) {
@@ -102,5 +105,9 @@ class HomeViewModel @Inject constructor(
             reviewRepository.clear()
             _uiState.update { it.copy(reviewItems = emptyList()) }
         }
+    }
+
+    fun refreshPermissions() {
+        _uiState.update { it.copy(missingPermissions = permissionManager.missingRuntimePermissions()) }
     }
 }

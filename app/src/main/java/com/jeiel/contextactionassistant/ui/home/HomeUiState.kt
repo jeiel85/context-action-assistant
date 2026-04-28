@@ -8,5 +8,6 @@ data class HomeUiState(
     val aiTransferEnabled: Boolean = true,
     val latestMessage: String = "대기 중",
     val isAnalyzing: Boolean = false,
-    val reviewItems: List<ReviewItem> = emptyList()
+    val reviewItems: List<ReviewItem> = emptyList(),
+    val missingPermissions: List<String> = emptyList()
 )

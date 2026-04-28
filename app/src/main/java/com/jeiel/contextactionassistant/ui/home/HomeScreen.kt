@@ -24,7 +24,8 @@ fun HomeScreen(
     onToggleAiTransfer: (Boolean) -> Unit,
     onManualCapture: () -> Unit,
     onRefreshReviews: () -> Unit,
-    onClearReviews: () -> Unit
+    onClearReviews: () -> Unit,
+    onRequestRuntimePermissions: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -44,7 +45,12 @@ fun HomeScreen(
                 Switch(checked = state.aiTransferEnabled, onCheckedChange = onToggleAiTransfer)
                 Text(text = "최신 상태: ${state.latestMessage}")
                 Text(text = "Batch Review: ${state.reviewItems.size}건")
+                Text(text = "미승인 권한: ${state.missingPermissions.size}건")
             }
+        }
+
+        Button(onClick = onRequestRuntimePermissions) {
+            Text("런타임 권한 요청")
         }
 
         Button(onClick = onRequestOverlayPermission) {

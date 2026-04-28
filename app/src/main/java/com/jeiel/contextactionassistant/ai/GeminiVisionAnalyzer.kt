@@ -8,6 +8,7 @@ import com.jeiel.contextactionassistant.domain.model.AnalysisRequest
 import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.delay
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -60,10 +61,7 @@ class GeminiVisionAnalyzer @Inject constructor(
                 .toRequestBody("application/json".toMediaType())
 
             val httpRequest = Request.Builder().url(endpoint).post(body).build()
-            val response = client.newCall(httpRequest).execute()
-            if (!response.isSuccessful) error("Gemini error: ${response.code}")
-
-            val raw = response.body?.string().orEmpty()
+            val raw = executeWithRetry(httpRequest)
             val parsed = json.decodeFromString(GeminiResponse.serializer(), raw)
             val text = parsed.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text.orEmpty()
             val cleanJson = text.substringAfter('{', "").let { "{$it" }.substringBeforeLast('}', "").let { "$it}" }
@@ -77,6 +75,27 @@ class GeminiVisionAnalyzer @Inject constructor(
                 actions = listOf(ActionItem("primary", "실행", true))
             )
         }
+    }
+
+    private suspend fun executeWithRetry(request: Request): String {
+        var attempt = 0
+        var lastError: Throwable? = null
+        while (attempt < 3) {
+            try {
+                val response = client.newCall(request).execute()
+                if (!response.isSuccessful) {
+                    error("Gemini error: ${response.code}")
+                }
+                return response.body?.string().orEmpty()
+            } catch (t: Throwable) {
+                lastError = t
+                attempt += 1
+                if (attempt < 3) {
+                    delay(300L * attempt)
+                }
+            }
+        }
+        throw lastError ?: IllegalStateException("Gemini request failed")
     }
 
     private fun String.toActionType(): ActionType {
