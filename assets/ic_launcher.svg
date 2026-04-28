@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Background circle -->
+  <path fill="#1A1A2E" d="M54,4 C82,4 106,28 106,54 C106,80 82,104 54,104 C26,104 4,80 4,54 C4,28 26,4 54,4 Z"/>
+  <!-- Inner teal circle -->
+  <path fill="#00D4AA" d="M54,14 C76,14 94,32 94,54 C94,76 76,94 54,94 C32,94 14,76 14,54 C14,32 32,14 54,14 Z"/>
+  <!-- Screen rectangle -->
+  <path fill="#FFFFFF" d="M30,28 L78,28 A4,4 0 0,1 82,32 L82,72 A4,4 0 0,1 78,76 L30,76 A4,4 0 0,1 26,72 L26,32 A4,4 0 0,1 30,28 Z"/>
+  <!-- Screen content lines -->
+  <path fill="#00D4AA" d="M34,38 L62,38 L62,40 L34,40 Z M34,44 L74,44 L74,46 L34,46 Z M34,50 L66,50 L66,52 L34,52 Z M34,56 L54,56 L54,58 L34,58 Z"/>
+  <!-- Capture circle -->
+  <path fill="#1A1A2E" d="M68,60 C73,60 78,65 78,70 C78,75 73,80 68,80 C63,80 58,75 58,70 C58,65 63,60 68,60 Z"/>
+  <!-- Cross inside capture circle -->
+  <line x1="68" y1="64" x2="68" y2="76" stroke="#00D4AA" stroke-width="2"/>
+  <line x1="62" y1="70" x2="74" y2="70" stroke="#00D4AA" stroke-width="2"/>
+  <!-- Floating bubble indicators -->
+  <path fill="#00D4AA" d="M20,60 C20,58 22,56 24,56 L28,56 L26,60 Z M82,50 C84,50 86,48 86,46 L86,42 L82,44 Z"/>
+</svg>

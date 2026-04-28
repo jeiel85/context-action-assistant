@@ -1,7 +1,7 @@
 # Context Action Assistant
 
 <p align="center">
-  <img src="app/src/main/res/drawable/ic_launcher_foreground.xml" width="120" alt="App Icon" />
+  <img src="assets/ic_launcher.svg" width="120" alt="App Icon" />
 </p>
 
 <p align="center">
