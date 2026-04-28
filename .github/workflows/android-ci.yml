@@ -35,19 +35,20 @@ jobs:
         run: |
           set -euo pipefail
 
-          CANDIDATES=(
-            "${ANDROID_HOME:-}"
-            "${ANDROID_SDK_ROOT:-}"
-            "$HOME/android-sdk"
-            "/usr/local/lib/android/sdk"
-            "/opt/android-sdk"
-          )
+          CANDIDATES=()
 
           if command -v sdkmanager >/dev/null 2>&1; then
             SDKMANAGER_BIN="$(command -v sdkmanager)"
             INFERRED="$(echo "$SDKMANAGER_BIN" | sed -E 's#/cmdline-tools/.*/bin/sdkmanager$##')"
             CANDIDATES+=("$INFERRED")
           fi
+          CANDIDATES+=(
+            "${ANDROID_HOME:-}"
+            "${ANDROID_SDK_ROOT:-}"
+            "$HOME/android-sdk"
+            "/usr/local/lib/android/sdk"
+            "/opt/android-sdk"
+          )
 
           SDK_ROOT=""
           for c in "${CANDIDATES[@]}"; do
@@ -75,8 +76,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses >/dev/null || true
+          sdkmanager --sdk_root="$ANDROID_HOME" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          test -d "$ANDROID_HOME/platforms/android-35"
+          test -d "$ANDROID_HOME/build-tools/35.0.0"
 
       - name: Build Debug APK
         shell: bash
