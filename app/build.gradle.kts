@@ -57,6 +57,15 @@ android {
         buildConfig = true
     }
 
+    sourceSets {
+        getByName("main") {
+            kotlin.srcDirs("src/main/java")
+        }
+        getByName("debug") {
+            kotlin.srcDirs("src/debug/java")
+        }
+    }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
