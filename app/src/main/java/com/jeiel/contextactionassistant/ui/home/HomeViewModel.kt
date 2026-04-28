@@ -2,13 +2,16 @@ package com.jeiel.contextactionassistant.ui.home
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jeiel.contextactionassistant.action.ActionEngine
 import com.jeiel.contextactionassistant.core.permission.PermissionManager
 import com.jeiel.contextactionassistant.data.datastore.SettingsRepository
+import com.jeiel.contextactionassistant.data.review.ReviewItem
 import com.jeiel.contextactionassistant.data.review.ReviewRepository
+import com.jeiel.contextactionassistant.domain.model.AiAnalysisResult
+import com.jeiel.contextactionassistant.domain.model.PrivacyFlags
 import com.jeiel.contextactionassistant.overlay.OverlayService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -22,7 +25,8 @@ import kotlinx.coroutines.launch
 class HomeViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val reviewRepository: ReviewRepository,
-    private val permissionManager: PermissionManager
+    private val permissionManager: PermissionManager,
+    private val actionEngine: ActionEngine
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -75,12 +79,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onSharedImage(uri: Uri) {
-        _uiState.update {
-            it.copy(latestMessage = "공유 이미지 수신: $uri")
-        }
-    }
-
     fun setAnalyzing(analyzing: Boolean) {
         _uiState.update { it.copy(isAnalyzing = analyzing) }
     }
@@ -109,5 +107,26 @@ class HomeViewModel @Inject constructor(
 
     fun refreshPermissions() {
         _uiState.update { it.copy(missingPermissions = permissionManager.missingRuntimePermissions()) }
+    }
+
+    fun addReviewItem(item: ReviewItem) {
+        viewModelScope.launch {
+            reviewRepository.add(item)
+            refreshReviews()
+        }
+    }
+
+    fun executeReviewItem(item: ReviewItem) {
+        val result = AiAnalysisResult(
+            type = item.type,
+            confidence = item.confidence,
+            summary = item.summary,
+            data = item.data,
+            privacyFlags = PrivacyFlags()
+        )
+        val success = actionEngine.executePrimaryAction(result)
+        _uiState.update {
+            it.copy(latestMessage = if (success) "검토 항목 실행 완료" else "검토 항목 실행 실패")
+        }
     }
 }

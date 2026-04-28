@@ -105,7 +105,8 @@ class OverlayService : LifecycleService() {
                             confidence = result.confidence,
                             summary = result.summary,
                             createdAt = System.currentTimeMillis(),
-                            source = CaptureSource.SCREENSHOT_DETECTED.name
+                            source = CaptureSource.SCREENSHOT_DETECTED.name,
+                            data = result.data
                         )
                     )
                     if (result.confidence >= 0.7) {

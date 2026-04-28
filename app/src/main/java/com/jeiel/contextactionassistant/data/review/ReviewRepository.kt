@@ -10,7 +10,8 @@ data class ReviewItem(
     val confidence: Double,
     val summary: String,
     val createdAt: Long,
-    val source: String
+    val source: String,
+    val data: Map<String, String> = emptyMap()
 )
 
 interface ReviewRepository {

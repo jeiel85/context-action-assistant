@@ -15,9 +15,11 @@
 - `OverlayService` 플로팅 버블 + 하단 액션 카드
 - `ScreenshotDetector(ContentObserver)` 자동 감지 경로
 - `MediaProjection` 기반 수동 1회 캡처 분석
+- 공유 인텐트 이미지 즉시 분석 + 결과 저장
 - `ImagePreprocessor` (리사이즈/압축)
 - `VisionAnalyzer` 추상화 + `GeminiVisionAnalyzer` + Mock fallback
 - Batch Review 기본 저장/조회(최신 분석 결과 목록)
+- Batch Review 항목 재실행(저장된 결과 액션 재트리거)
 - Action Engine 고도화(TODO 저장, RECEIPT CSV 클립보드, SCHEDULE 중복 키 방지)
 - MockVisionAnalyzer 단위 테스트 추가
 

@@ -25,7 +25,8 @@ fun HomeScreen(
     onManualCapture: () -> Unit,
     onRefreshReviews: () -> Unit,
     onClearReviews: () -> Unit,
-    onRequestRuntimePermissions: () -> Unit
+    onRequestRuntimePermissions: () -> Unit,
+    onExecuteReviewItem: (Long) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -80,9 +81,12 @@ fun HomeScreen(
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(state.reviewItems.take(8), key = { it.id }) { item ->
                 Card {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text("${item.type} (${item.confidence})")
                         Text(item.summary)
+                        Button(onClick = { onExecuteReviewItem(item.id) }) {
+                            Text("이 항목 실행")
+                        }
                     }
                 }
             }

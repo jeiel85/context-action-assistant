@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.jeiel.contextactionassistant.action.ActionEngine
 import com.jeiel.contextactionassistant.capture.ManualCaptureManager
 import com.jeiel.contextactionassistant.core.permission.PermissionManager
+import com.jeiel.contextactionassistant.data.review.ReviewItem
 import com.jeiel.contextactionassistant.domain.model.CaptureSource
 import com.jeiel.contextactionassistant.domain.usecase.AnalyzeImageUseCase
 import com.jeiel.contextactionassistant.ui.home.HomeScreen
@@ -104,6 +105,12 @@ class MainActivity : ComponentActivity() {
                         if (missing.isNotEmpty()) {
                             permissionLauncher.launch(missing.toTypedArray())
                         }
+                    },
+                    onExecuteReviewItem = { reviewId ->
+                        val item = viewModel.uiState.value.reviewItems.firstOrNull { it.id == reviewId }
+                        if (item != null) {
+                            viewModel.executeReviewItem(item)
+                        }
                     }
                 )
             }
@@ -127,7 +134,31 @@ class MainActivity : ComponentActivity() {
         if (intent?.action == Intent.ACTION_SEND && intent.type?.startsWith("image/") == true) {
             val uri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
             if (uri != null) {
-                viewModel.onSharedImage(uri)
+                lifecycleScope.launch {
+                    viewModel.setAnalyzing(true)
+                    val analysis = analyzeImageUseCase(
+                        contentResolver = contentResolver,
+                        uri = uri,
+                        source = CaptureSource.SHARED_IMAGE
+                    ).getOrElse {
+                        viewModel.setLatestMessage("공유 이미지 분석 실패: ${it.message}")
+                        viewModel.setAnalyzing(false)
+                        return@launch
+                    }
+                    val item = ReviewItem(
+                        id = System.currentTimeMillis(),
+                        type = analysis.type,
+                        confidence = analysis.confidence,
+                        summary = analysis.summary,
+                        createdAt = System.currentTimeMillis(),
+                        source = CaptureSource.SHARED_IMAGE.name,
+                        data = analysis.data
+                    )
+                    viewModel.addReviewItem(item)
+                    actionEngine.executePrimaryAction(analysis)
+                    viewModel.setLatestMessage("공유 이미지 분석 완료: ${analysis.type}")
+                    viewModel.setAnalyzing(false)
+                }
             }
         }
     }
