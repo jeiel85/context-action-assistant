@@ -87,6 +87,16 @@ jobs:
           set -o pipefail
           chmod +x ./gradlew
           ./gradlew --no-daemon :app:assembleDebug --stacktrace --info 2>&1 | tee build.log
+          BUILD_EXIT=${PIPESTATUS[0]}
+          if [ "$BUILD_EXIT" -ne 0 ]; then
+            {
+              echo "Gradle build failed. Diagnostic snippets:"
+              grep -nE "FAILURE:|What went wrong|Execution failed|SDK location not found|error:|Exception" build.log | tail -n 40 || true
+            } | tee build-diagnostics.log
+            DIAG="$(tail -n 10 build-diagnostics.log | tr '\n' ' ' | sed 's/  */ /g')"
+            echo "::error::${DIAG:-Gradle build failed; see build.log artifact}"
+          fi
+          exit "$BUILD_EXIT"
 
       - name: Run Unit Tests
         shell: bash
@@ -102,4 +112,5 @@ jobs:
           if-no-files-found: ignore
           path: |
             build.log
+            build-diagnostics.log
             test.log
